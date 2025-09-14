@@ -30,6 +30,7 @@ TASK STATUS
 
 
 My statistics is as shown :
+
 ✅ Completed:
 
 Linux install
@@ -46,12 +47,11 @@ BattleCraft: Daily CSS Challenges
 
 LyricLounge Discord bot (partially)
 
+TimeTickQuiz CLI
+
 ❌ Not attempted yet:
 
 Terminal Hunt
-
-TimeTickQuiz CLI
-
 
 WordRush Mobile app
 
