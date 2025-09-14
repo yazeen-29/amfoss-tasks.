@@ -1,5 +1,5 @@
 # Amfoss-tasks
-aspiring amfoss
+ASPIRING AMFOSS
 
 
 INTRODUCTION
@@ -33,15 +33,25 @@ My statistics is as shown :
 ✅ Completed:
 
 Linux install
+
 The Cyberpunk Syndicate
+
 The Circularity Challenge
+
 CineScope
+
 OpenCV Treasure Map
+
 BattleCraft: Daily CSS Challenges
+
 ❌ Not attempted yet:
 
 Terminal Hunt
+
 TimeTickQuiz CLI
+
 LyricLounge Discord bot
+
 WordRush Mobile app
+
 SysForge challenge
