@@ -1,2 +1,2 @@
-# amfoss-tasks.
+# amfoss-tasks
 aspiring amfoss
