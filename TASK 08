@@ -1,0 +1,118 @@
+I was new to open cv , pillow . with the online help i managed to complte the code and i got generated png which i think its correct. i got to know about opencv how to use it where, when etc it was my 1st hand on these things which i think i have done fairly
+i attach what code i write here:
+import os
+import cv2
+import numpy as np
+from PIL import Image, ImageDraw
+import re
+
+# --- Config ---
+ASSETS_DIR = "assets"
+TILE_SIZE = 128   # each scan is 128x128 pixels
+GRID_COLS = 10    # number of columns in the final map
+
+# --- Helpers ---
+def extract_number(filename):
+    """Extract numeric prefix (e.g. '001_block.png' -> 1)."""
+    match = re.match(r"(\d+)_", filename)
+    return int(match.group(1)) if match else float("inf")
+
+def load_images():
+    """Load all PNG files sorted numerically."""
+    files = sorted(
+        [f for f in os.listdir(ASSETS_DIR) if f.endswith(".png")],
+        key=extract_number
+    )
+    return [os.path.join(ASSETS_DIR, f) for f in files]
+
+def analyze_image(image_path):
+    """Return ((cx, cy), avg_color) for block, or None if blank/teleport."""
+    img = cv2.imread(image_path)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Teleport detection: almost blank
+    if np.mean(gray) > 250:
+        return None
+
+    # Threshold + contour
+    _, thresh = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY_INV)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours:
+        return None
+
+    c = max(contours, key=cv2.contourArea)
+    M = cv2.moments(c)
+    if M["m00"] == 0:
+        return None
+
+    cx = int(M["m10"] / M["m00"])
+    cy = int(M["m01"] / M["m00"])
+
+    # Average block color
+    avg_color = cv2.mean(img, mask=thresh)[:3]  # (B,G,R)
+    avg_color = tuple(map(int, avg_color[::-1]))  # (R,G,B)
+
+    return (cx, cy), avg_color
+
+def build_map(images):
+    """Builds treasure map with points, paths, and a red X at the end."""
+    num_tiles = len(images)
+    grid_rows = (num_tiles + GRID_COLS - 1) // GRID_COLS
+
+    canvas_w = GRID_COLS * TILE_SIZE
+    canvas_h = grid_rows * TILE_SIZE
+
+    map_img = Image.new("RGB", (canvas_w, canvas_h), (255, 255, 255))
+    draw = ImageDraw.Draw(map_img)
+
+    prev_point = None
+    prev_color = None
+    last_point = None  # store final block position
+
+    for i, img_path in enumerate(images):
+        result = analyze_image(img_path)
+        row = i // GRID_COLS
+        col = i % GRID_COLS
+        x_offset = col * TILE_SIZE
+        y_offset = row * TILE_SIZE
+
+        if result is None:
+            prev_point = None
+            prev_color = None
+            continue
+
+        (cx, cy), avg_color = result
+
+        # Position inside full map
+        px = x_offset + cx
+        py = y_offset + cy
+
+        # Draw block center
+        draw.ellipse((px-4, py-4, px+4, py+4), fill=avg_color, outline=(0,0,0))
+
+        # Draw path if previous exists
+        if prev_point is not None:
+            draw.line([prev_point, (px, py)], fill=prev_color, width=3)
+
+        prev_point = (px, py)
+        prev_color = avg_color
+        last_point = (px, py)
+
+    # --- Add treasure "X" at final point ---
+    if last_point:
+        x, y = last_point
+        size = 12
+        draw.line((x-size, y-size, x+size, y+size), fill=(255, 0, 0), width=4)
+        draw.line((x-size, y+size, x+size, y-size), fill=(255, 0, 0), width=4)
+
+    map_img.save("treasure_map.png")
+    print("✅ Treasure map saved as treasure_map.png with a RED X!")
+
+# --- Run ---
+if __name__ == "__main__":
+    images = load_images()
+    print(f"✅ Loaded {len(images)} images in order")
+    build_map(images)
+
+
+
