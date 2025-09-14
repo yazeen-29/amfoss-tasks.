@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">              
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>battle-03</title>            
+  <style>
+    /* canvas setup */
+    /* html body for drawing area */
+    html,body{height:100%;margin:0}    
+    body{
+      background:#f0f0f0;             
+      display:grid;                   /*  centering technique using CSS Grid */
+      place-items:center;             /*  center child horizontally+vertically */
+      padding:20px;                   /*  breathing room for screenshot */
+      box-sizing:border-box;          /*  easier sizing model */
+      font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+
+    /* ---------- the battle canvas ---------- */
+    .canvas{                            
+      width:400px;                      
+      height:300px;                     
+      position:relative;                /* (12) establishes a positioning context for absolute children */
+      background: #243D83;                 
+      overflow:hidden;                  /* (14) hide anything outside canvas bounds */
+      box-shadow:0 6px 20px rgba(0,0,0,.12); /* (15) just for nicer local preview */
+    }
+
+    .fig{
+      position:absolute;
+      width:140px; height:140px;
+      background:#FFFFFF;  
+      border: 20px solid white; /* creates white frame */
+      box-sizing: border-box;
+      transform:translate(-50%,-50%) ;
+    }
+
+    .d3{ top:60%; left:55%; }
+    .d4{ top:45%; left:40%; }
+
+   
+    .blue {
+      position:absolute;
+      width:80px; height:80px; 
+      background:#243D83;
+      top:44%; left:40%;
+      transform:translate(-50%,-50%) ;
+    }
+    .blue.rotated {
+      transform:translate(-50%,-50%);
+      top:60%; left:54%;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas"> 
+    <div class="fig d3"></div>
+    <div class="fig d4"></div>
+    <div class="blue"></div>
+    <div class="blue rotated"></div>
+  </div>  
+</body>
+</html>

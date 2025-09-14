@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">              
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>battle-01</title>            
+  <style>
+    /* canvas setup */
+    /* html body for drawing area */
+    html,body{height:100%;margin:0}    
+    body{
+      background:#f0f0f0;             
+      display:grid;                   /*  centering technique using CSS Grid */
+      place-items:center;             /*  center child horizontally+vertically */
+      padding:20px;                   /*  breathing room for screenshot */
+      box-sizing:border-box;          /*  easier sizing model */
+      font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+
+    /* ---------- the battle canvas ---------- */
+    .canvas{                            
+      width:400px;                      
+      height:300px;                     
+      position:relative;                /* (12) establishes a positioning context for absolute children */
+      background: #E25C57;                 /* (13) default canvas bg — change to match target */
+      overflow:hidden;                  /* (14) hide anything outside canvas bounds */
+      box-shadow:0 6px 20px rgba(0,0,0,.12); /* (15) just for nicer local preview */
+    }
+
+    
+    .bar {
+      position:absolute;
+      left:100%;                      
+      width:400px;
+      height:30px;
+      background:#F4DA64;            
+      transform:translateX(-50%);    
+    }
+    /* TOP-RIGHT */
+    .t1{ right:0;  top:0px;  }  /* first  */
+    .t2{ right:0;  top:50px;  }  /* second */
+    .t3{ right:0;  top:100px; }  /* third  */
+
+    /* BOTTOM-LEFT  */
+    .b1{ left:0; bottom:0px;  } /* bottom-FIRST */
+    .b2{ left:0; bottom:50px;  } /* above bottom-FIRST */
+    .b3{ left:0; bottom:100px; } /* highest of the bottom LINES*/
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <!-- top-left group -->
+    <div class="bar t1"></div>
+    <div class="bar t2"></div>
+    <div class="bar t3"></div>
+
+    <!-- bottom-right group -->
+    <div class="bar b1"></div>
+    <div class="bar b2"></div>
+    <div class="bar b3"></div>
+  </div>  
+</body>
+</html>
