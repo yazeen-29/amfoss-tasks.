@@ -1,0 +1,120 @@
+I have created my own circularity challenge game using htmal. for this i hava studied html and its functions.i have taken help of chatgpt to study html and to get help for the task also i was getting stuck while adding some sound effect for the challenge that was the only blocker. overall the task was so good as it was my 1st html task
+given below is the code i used :
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfect Circle Game</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    #message {
+      font-size: 20px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    canvas {
+      border: 2px solid black;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+  <div id="message">🎯 Draw your circle to get your score...</div>
+  <canvas id="myCanvas" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const msg = document.getElementById("message");
+
+    // --- Center dot ---
+    function drawCenterDot() {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 6, 0, Math.PI * 2);
+      ctx.fillStyle = 'red';
+      ctx.fill();
+      ctx.closePath();
+    }
+    drawCenterDot();
+
+    let drawing = false;
+    let points = [];
+
+    // --- Sound setup ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let oscillator;
+
+    function startSound() {
+      oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4 tone
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); // low volume
+      oscillator.start();
+    }
+
+    function stopSound() {
+      if (oscillator) {
+        oscillator.stop();
+        oscillator.disconnect();
+        oscillator = null;
+      }
+    }
+
+    // --- Mouse events ---
+    canvas.addEventListener("mousedown", (e) => {
+      drawing = true;
+      points = [];
+      ctx.beginPath();
+      ctx.moveTo(e.offsetX, e.offsetY);
+      points.push({ x: e.offsetX, y: e.offsetY });
+      startSound();
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (!drawing) return;
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+      points.push({ x: e.offsetX, y: e.offsetY });
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (!drawing) return;
+      drawing = false;
+      stopSound();
+      evaluateCircle();
+    });
+
+    // --- Circle evaluation ---
+    function evaluateCircle() {
+      if (!points || points.length === 0) {
+        msg.textContent = "⚠️ Draw a circle first!";
+        return;
+      }
+
+      let distances = points.map(p => Math.hypot(p.x - centerX, p.y - centerY));
+      let avgRadius = distances.reduce((a, b) => a + b, 0) / distances.length;
+
+      let errors = distances.map(d => Math.abs(d - avgRadius));
+      let avgError = errors.reduce((a, b) => a + b, 0) / errors.length;
+
+      let rawScore = 100 - avgError;
+      let score = Math.max(0, Math.min(100, rawScore));
+      msg.textContent = `✅ Your score: ${score.toFixed(2)}/100`;
+    }
+  </script>
+</body>
+</html>
+
