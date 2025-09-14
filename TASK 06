@@ -1,0 +1,246 @@
+one of the task which i think i can complete at the beggining but atlast cant complete due to some error in code even after seeking ai help. i created discord bot , got api from last fm.the main prblm was i cant run / commands on the bot 
+
+
+
+i will share the code here:
+import os
+import discord
+import aiohttp
+import traceback
+from discord.ext import commands
+from discord import app_commands
+from dotenv import load_dotenv
+
+# -------- CONFIG --------
+load_dotenv()
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+LASTFM_API_KEY = os.getenv("LASTFM_API_KEY")  # optional, for extra tags/recommendations
+GUILD_NUM = 1416694301785849889               # <- your server numeric ID
+GUILD = discord.Object(id=GUILD_NUM)
+
+# -------- BOT SETUP --------
+intents = discord.Intents.default()
+# For these slash commands we don't need message_content, but keep as default.
+bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
+
+
+# -------- HELPERS --------
+async def fetch_json(session, url, params=None, headers=None, timeout=15):
+    try:
+        async with session.get(url, params=params, headers=headers, timeout=timeout) as resp:
+            text = await resp.text()
+            try:
+                return resp.status, await resp.json()
+            except Exception:
+                return resp.status, text
+    except Exception as e:
+        return None, str(e)
+
+
+def chunk_text(text, size=1900):
+    return [text[i:i+size] for i in range(0, len(text), size)]
+
+
+# -------- EVENTS --------
+@bot.event
+async def on_ready():
+    print(f"✅ Logged in as {bot.user}")
+    try:
+        # Copy global to guild and sync so commands appear instantly in your guild
+        bot.tree.copy_global_to(guild=GUILD)
+        synced = await bot.tree.sync(guild=GUILD)
+        print(f"🔄 Synced {len(synced)} commands to guild {GUILD_NUM}")
+    except Exception as e:
+        print("❌ Sync error:", e)
+        traceback.print_exc()
+
+
+@bot.event
+async def on_error(event_method, *args, **kwargs):
+    print(f"Unexpected error in {event_method}")
+    traceback.print_exc()
+
+
+# App-command error handler (best-effort user feedback)
+@bot.tree.error
+async def on_app_command_error(interaction: discord.Interaction, error: Exception):
+    # Log
+    print("App command error:", repr(error))
+    traceback.print_exc()
+    try:
+        # Try to reply cleanly
+        if not interaction.response.is_done():
+            await interaction.response.send_message("⚠️ An error occurred while processing the command.", ephemeral=True)
+        else:
+            await interaction.followup.send("⚠️ An error occurred while processing the command.", ephemeral=True)
+    except Exception:
+        pass
+
+
+# -------- CORE COMMANDS --------
+
+# /lyrics <song> <artist>
+@bot.tree.command(name="lyrics", description="Fetch full song lyrics", guild=GUILD)
+@app_commands.describe(song="Song name", artist="Artist name")
+async def lyrics(interaction: discord.Interaction, song: str, artist: str):
+    await interaction.response.defer()  # acknowledge
+    async with aiohttp.ClientSession() as session:
+        # 1) Try LRCLib (if available)
+        try:
+            status, data = await fetch_json(
+                session,
+                "https://lrclib.net/api/search",
+                params={"q": f"{artist} {song}"}
+            )
+            # data may be a list; try to extract lyrics
+            if isinstance(data, list) and len(data) > 0:
+                entry = data[0]
+                lyrics_text = entry.get("plainLyrics") or entry.get("lyrics") or entry.get("syncedLyrics")
+                if lyrics_text:
+                    # chunk and send
+                    header = f"🎶 **{song}** — *{artist}*"
+                    await interaction.followup.send(header)
+                    for chunk in chunk_text(lyrics_text):
+                        await interaction.followup.send(f"```{chunk}```")
+                    return
+        except Exception:
+            # non-fatal — fallback to lyrics.ovh
+            pass
+
+        # 2) Fallback: lyrics.ovh
+        try:
+            status, data = await fetch_json(session, f"https://api.lyrics.ovh/v1/{artist}/{song}")
+            if status == 200 and isinstance(data, dict) and data.get("lyrics"):
+                lyrics_text = data["lyrics"]
+                header = f"🎶 **{song}** — *{artist}*"
+                await interaction.followup.send(header)
+                for chunk in chunk_text(lyrics_text):
+                    await interaction.followup.send(f"```{chunk}```")
+                return
+        except Exception:
+            pass
+
+    await interaction.followup.send("❌ Lyrics not found (tried LRCLib and lyrics.ovh).")
+
+
+# /track <song> <artist>
+@bot.tree.command(name="track", description="Get detailed track information", guild=GUILD)
+@app_commands.describe(song="Song name", artist="Artist name")
+async def track(interaction: discord.Interaction, song: str, artist: str):
+    await interaction.response.defer()
+    headers = {"User-Agent": "LyricLoungeBot/1.0 (https://example.com)"}  # MusicBrainz requires UA
+    mb_url = "https://musicbrainz.org/ws/2/recording/"
+    mb_params = {"query": f"recording:{song} AND artist:{artist}", "fmt": "json", "limit": 1}
+
+    async with aiohttp.ClientSession() as session:
+        status, data = await fetch_json(session, mb_url, params=mb_params, headers=headers)
+        if status == 200 and isinstance(data, dict) and data.get("recordings"):
+            rec = data["recordings"][0]
+            title = rec.get("title", song)
+            artist_name = None
+            # artist-credit may vary
+            if "artist-credit" in rec and len(rec["artist-credit"]) > 0:
+                artist_name = rec["artist-credit"][0].get("name")
+            album = "Unknown"
+            release_date = "Unknown"
+            if rec.get("releases"):
+                rel = rec["releases"][0]
+                album = rel.get("title", "Unknown")
+                # musicbrainz sometimes has 'date' or 'release-event'
+                release_date = rel.get("date") or rel.get("first-release-date") or release_date
+            length_ms = rec.get("length")
+            duration_str = "Unknown"
+            if length_ms:
+                seconds = int(length_ms // 1000)
+                m, s = divmod(seconds, 60)
+                duration_str = f"{m}:{s:02d}"
+
+            # Try Last.fm for tags if key present
+            tags = []
+            if LASTFM_API_KEY:
+                lf_url = "http://ws.audioscrobbler.com/2.0/"
+                lf_params = {"method": "track.getInfo", "api_key": LASTFM_API_KEY, "artist": artist, "track": song, "format": "json"}
+                st2, data2 = await fetch_json(session, lf_url, params=lf_params)
+                if st2 == 200 and isinstance(data2, dict) and "track" in data2:
+                    toptags = data2["track"].get("toptags", {}).get("tag", [])
+                    if isinstance(toptags, list):
+                        tags = [t.get("name") for t in toptags][:8]
+
+            # Build embed
+            embed = discord.Embed(title=f"{title} — {artist_name or artist}", color=discord.Color.blue())
+            embed.add_field(name="Album", value=album, inline=False)
+            embed.add_field(name="Duration", value=duration_str, inline=True)
+            embed.add_field(name="Release Date", value=release_date, inline=True)
+            if tags:
+                embed.add_field(name="Tags", value=", ".join(tags), inline=False)
+            # send embed
+            await interaction.followup.send(embed=embed)
+            return
+
+    await interaction.followup.send("❌ Track not found on MusicBrainz.")
+
+
+# /playlist [add/remove/view/clear] [song]
+playlists = {}  # user_id -> list of songs
+
+@bot.tree.command(name="playlist", description="Manage your personal playlist", guild=GUILD)
+@app_commands.describe(action="add/remove/view/clear", song="Song name (if adding/removing)")
+async def playlist(interaction: discord.Interaction, action: str, song: str = None):
+    await interaction.response.defer()
+    uid = str(interaction.user.id)
+    playlists.setdefault(uid, [])
+
+    action = action.lower()
+    if action == "add":
+        if not song:
+            await interaction.followup.send("❌ You must provide a song to add.")
+            return
+        playlists[uid].append(song)
+        await interaction.followup.send(f"✅ Added **{song}** to your playlist.")
+    elif action == "remove":
+        if not song:
+            await interaction.followup.send("❌ You must provide a song to remove.")
+            return
+        try:
+            playlists[uid].remove(song)
+            await interaction.followup.send(f"🗑️ Removed **{song}** from your playlist.")
+        except ValueError:
+            await interaction.followup.send("❌ Song not found in your playlist.")
+    elif action == "view":
+        user_list = playlists.get(uid, [])
+        if not user_list:
+            await interaction.followup.send("📭 Your playlist is empty.")
+        else:
+            await interaction.followup.send("🎶 Your Playlist:\n" + "\n".join(f"- {s}" for s in user_list))
+    elif action == "clear":
+        playlists[uid] = []
+        await interaction.followup.send("🧹 Cleared your playlist.")
+    else:
+        await interaction.followup.send("❌ Invalid action. Use add/remove/view/clear.")
+
+
+# /help command
+@bot.tree.command(name="help", description="Show available commands", guild=GUILD)
+async def help_cmd(interaction: discord.Interaction):
+    await interaction.response.defer()
+    help_text = (
+        "**LyricLounge — Core Commands**\n\n"
+        "`/lyrics <song> <artist>` - Fetch and display full lyrics (chunked if long).\n"
+        "`/track <song> <artist>` - Track details (artist, album, duration, release, tags).\n"
+        "`/playlist [add/remove/view/clear] [song]` - Manage your personal playlist.\n"
+        "`/help` - Show this help message.\n\n"
+        "Notes: track uses MusicBrainz; tags may use Last.fm if `LASTFM_API_KEY` is set."
+    )
+    await interaction.followup.send(help_text)
+
+
+# -------- RUN --------
+if __name__ == "__main__":
+    print("🚀 Starting LyricLounge...")
+    print("🔑 Token loaded?", "Yes" if TOKEN else "No")
+    if not TOKEN:
+        print("❌ ERROR: DISCORD_BOT_TOKEN not set in environment or .env")
+        raise SystemExit(1)
+
+    bot.run(TOKEN)
+
