@@ -44,13 +44,14 @@ OpenCV Treasure Map
 
 BattleCraft: Daily CSS Challenges
 
+LyricLounge Discord bot (partially)
+
 ❌ Not attempted yet:
 
 Terminal Hunt
 
 TimeTickQuiz CLI
 
-LyricLounge Discord bot
 
 WordRush Mobile app
 
