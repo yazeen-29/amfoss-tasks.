@@ -1,0 +1,346 @@
+one of my fav and easy task . i have generated all 5 images using css. i seek help for 1st then all the remaining was easy to do. 
+i will paste all the code and address also i will upload the folder
+task 10 part 1
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">              
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>battle-01</title>            
+  <style>
+    /* canvas setup */
+    /* html body for drawing area */
+    html,body{height:100%;margin:0}    
+    body{
+      background:#f0f0f0;             
+      display:grid;                   /*  centering technique using CSS Grid */
+      place-items:center;             /*  center child horizontally+vertically */
+      padding:20px;                   /*  breathing room for screenshot */
+      box-sizing:border-box;          /*  easier sizing model */
+      font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+
+    /* ---------- the battle canvas ---------- */
+    .canvas{                            
+      width:400px;                      
+      height:300px;                     
+      position:relative;                /* (12) establishes a positioning context for absolute children */
+      background: #E25C57;                 /* (13) default canvas bg — change to match target */
+      overflow:hidden;                  /* (14) hide anything outside canvas bounds */
+      box-shadow:0 6px 20px rgba(0,0,0,.12); /* (15) just for nicer local preview */
+    }
+
+    
+    .bar {
+      position:absolute;
+      left:100%;                      
+      width:400px;
+      height:30px;
+      background:#F4DA64;            
+      transform:translateX(-50%);    
+    }
+    /* TOP-RIGHT */
+    .t1{ right:0;  top:0px;  }  /* first  */
+    .t2{ right:0;  top:50px;  }  /* second */
+    .t3{ right:0;  top:100px; }  /* third  */
+
+    /* BOTTOM-LEFT  */
+    .b1{ left:0; bottom:0px;  } /* bottom-FIRST */
+    .b2{ left:0; bottom:50px;  } /* above bottom-FIRST */
+    .b3{ left:0; bottom:100px; } /* highest of the bottom LINES*/
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <!-- top-left group -->
+    <div class="bar t1"></div>
+    <div class="bar t2"></div>
+    <div class="bar t3"></div>
+
+    <!-- bottom-right group -->
+    <div class="bar b1"></div>
+    <div class="bar b2"></div>
+    <div class="bar b3"></div>
+  </div>  
+</body>
+</html>
+
+http://127.0.0.1:5500/index.html
+
+
+
+
+task 10 part 2
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">              
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>battle-02</title>            
+  <style>
+    /* canvas setup */
+    /* html body for drawing area */
+    html,body{height:100%;margin:0}    
+    body{
+      background:#f0f0f0;             
+      display:grid;                   /*  centering technique using CSS Grid */
+      place-items:center;             /*  center child horizontally+vertically */
+      padding:20px;                   /*  breathing room for screenshot */
+      box-sizing:border-box;          /*  easier sizing model */
+      font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+
+    /* ---------- the battle canvas ---------- */
+    .canvas{                            
+      width:400px;                      
+      height:300px;                     
+      position:relative;                /* (12) establishes a positioning context for absolute children */
+      background: #CA8E75;                 /* (13) default canvas bg — change to match target */
+      overflow:hidden;                  /* (14) hide anything outside canvas bounds */
+      box-shadow:0 6px 20px rgba(0,0,0,.12); /* (15) just for nicer local preview */
+    }
+
+    
+    .Bbox1 {
+      position:absolute;
+      left:50%;
+      top:18%;                       
+      width:200px;
+      height:200px;
+      background:#FEFF58;            
+      transform:translateX(-50%) rotate(15deg);    
+    }
+
+    .Bbox2 {
+      position:absolute;
+      left:50%;
+      top:0%;                       
+      width:100px;
+      height:300px;
+      background:#414B81;            
+      transform:translateX(-50%) rotate(60deg);    
+    }
+
+
+    .Bbox3 {
+      position:absolute;
+      left:50%;
+      top:40%;                       
+      width:60px;
+      height:60px;
+      background:#FEFF58;            
+      transform:translateX(-50%) rotate(15deg);}
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="Bbox1"></div>
+    <div class="Bbox2"></div>
+    <div class="Bbox3"></div>
+  </div>  
+</body>
+</html>
+
+http://127.0.0.1:5500/index.html
+
+
+task 10 part 3
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">              
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>battle-03</title>            
+  <style>
+    /* canvas setup */
+    /* html body for drawing area */
+    html,body{height:100%;margin:0}    
+    body{
+      background:#f0f0f0;             
+      display:grid;                   /*  centering technique using CSS Grid */
+      place-items:center;             /*  center child horizontally+vertically */
+      padding:20px;                   /*  breathing room for screenshot */
+      box-sizing:border-box;          /*  easier sizing model */
+      font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+
+    /* ---------- the battle canvas ---------- */
+    .canvas{                            
+      width:400px;                      
+      height:300px;                     
+      position:relative;                /* (12) establishes a positioning context for absolute children */
+      background: #51A495;                 
+      overflow:hidden;                  /* (14) hide anything outside canvas bounds */
+      box-shadow:0 6px 20px rgba(0,0,0,.12); /* (15) just for nicer local preview */
+    }
+
+    
+    .diamond{
+      position:absolute;
+      width:100px; height:100px;
+      background:#FFFFFF;  
+      transform:rotate(45deg);
+    }
+    
+    .d1{ top:35%; left:23%; transform:translate(-50%,-50%) rotate(45deg); }
+    .d2{ top:65%; left:23%; transform:translate(-50%,-50%) rotate(45deg); }
+    .d3{ top:50%; left:55%; transform:translate(-50%,-50%) rotate(45deg); }
+    .d4{ top:50%; left:80%; transform:translate(-50%,-50%) rotate(45deg); }
+      
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="diamond d1"></div>
+    <div class="diamond d2"></div>
+    <div class="diamond d3"></div>
+    <div class="diamond d4"></div>
+  </div>  
+</body>
+</html>
+
+http://127.0.0.1:5500/index.html
+
+
+task 10 part 4
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">              
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>battle-03</title>            
+  <style>
+    /* canvas setup */
+    /* html body for drawing area */
+    html,body{height:100%;margin:0}    
+    body{
+      background:#f0f0f0;             
+      display:grid;                   /*  centering technique using CSS Grid */
+      place-items:center;             /*  center child horizontally+vertically */
+      padding:20px;                   /*  breathing room for screenshot */
+      box-sizing:border-box;          /*  easier sizing model */
+      font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+
+    /* ---------- the battle canvas ---------- */
+    .canvas{                            
+      width:400px;                      
+      height:300px;                     
+      position:relative;                /* (12) establishes a positioning context for absolute children */
+      background: #243D83;                 
+      overflow:hidden;                  /* (14) hide anything outside canvas bounds */
+      box-shadow:0 6px 20px rgba(0,0,0,.12); /* (15) just for nicer local preview */
+    }
+
+    .fig{
+      position:absolute;
+      width:140px; height:140px;
+      background:#FFFFFF;  
+      border: 20px solid white; /* creates white frame */
+      box-sizing: border-box;
+      transform:translate(-50%,-50%) ;
+    }
+
+    .d3{ top:60%; left:55%; }
+    .d4{ top:45%; left:40%; }
+
+   
+    .blue {
+      position:absolute;
+      width:80px; height:80px; 
+      background:#243D83;
+      top:44%; left:40%;
+      transform:translate(-50%,-50%) ;
+    }
+    .blue.rotated {
+      transform:translate(-50%,-50%);
+      top:60%; left:54%;
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas"> 
+    <div class="fig d3"></div>
+    <div class="fig d4"></div>
+    <div class="blue"></div>
+    <div class="blue rotated"></div>
+  </div>  
+</body>
+</html>
+
+http://127.0.0.1:5500/index.html
+
+
+
+task 10 part 5
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">              
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>battle-03</title>            
+  <style>
+    /* canvas setup */
+    /* html body for drawing area */
+    html,body{height:100%;margin:0}    
+    body{
+      background:#f0f0f0;             
+      display:grid;                   /*  centering technique using CSS Grid */
+      place-items:center;             /*  center child horizontally+vertically */
+      padding:20px;                   /*  breathing room for screenshot */
+      box-sizing:border-box;          /*  easier sizing model */
+      font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+
+    /* ---------- the battle canvas ---------- */
+    .canvas{                            
+      width:400px;                      
+      height:300px;                     
+      position:relative;                /* (12) establishes a positioning context for absolute children */
+      background: #B6EBE7;                 
+      overflow:hidden;                  /* (14) hide anything outside canvas bounds */
+      box-shadow:0 6px 20px rgba(0,0,0,.12); /* (15) just for nicer local preview */
+    }
+
+    .rect{
+      position:absolute;
+      background:#3A335A;}
+
+    .rect1{
+      width:181px;
+      height:50px;
+      top:30px;
+      left:30px;
+    }
+    .rect2{
+      width:40px;
+      height:128px;
+      top:100px;
+      left:172px;
+    }
+    .rect3{
+      width:200px;
+      height:50px;
+      top:240px;
+      left:170px;
+    }  
+
+    
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="rect rect1"></div>
+    <div class="rect rect2"></div>
+    <div class="rect rect3"></div>
+
+   
+  </div>  
+</body>
+</html>
+
+http://127.0.0.1:5500/index.html
