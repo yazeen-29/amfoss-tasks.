@@ -49,9 +49,9 @@ LyricLounge Discord bot (partially)
 
 TimeTickQuiz CLI
 
-❌ Not attempted yet:
+Terminal Hunt(partial)
 
-Terminal Hunt
+❌ Not attempted yet:
 
 WordRush Mobile app
 
